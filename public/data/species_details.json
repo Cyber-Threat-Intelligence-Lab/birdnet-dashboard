@@ -1,0 +1,48 @@
+{
+  "__default": {
+    "scientificName": "",
+    "description": "",
+    "habitat": "",
+    "behavior": "",
+    "callDescription": "",
+    "conservationStatus": "",
+    "image": "",
+    "audio": [
+      {
+        "title": "Placeholder sample 1",
+        "url": "audio/placeholder-sample-1.mp3",
+        "type": "audio/mpeg"
+      },
+      {
+        "title": "Placeholder sample 2",
+        "url": "audio/placeholder-sample-2.mp3",
+        "type": "audio/mpeg"
+      },
+      {
+        "title": "Placeholder sample 3",
+        "url": "audio/placeholder-sample-3.mp3",
+        "type": "audio/mpeg"
+      }
+    ]
+  },
+  "Australian Magpie": {
+    "scientificName": "Gymnorhina tibicen",
+    "description": "",
+    "habitat": "",
+    "behavior": "",
+    "callDescription": "",
+    "conservationStatus": "",
+    "image": "",
+    "audio": []
+  },
+  "Black Prince": {
+    "scientificName": "Psaltoda plaga",
+    "description": "",
+    "habitat": "",
+    "behavior": "",
+    "callDescription": "",
+    "conservationStatus": "",
+    "image": "",
+    "audio": []
+  }
+}
