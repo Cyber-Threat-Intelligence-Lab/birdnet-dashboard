@@ -1,6 +1,8 @@
 {
   "__default": {
     "scientificName": "",
+    "inaturalistTaxonId": "",
+    "wikipediaTitle": "",
     "description": "",
     "habitat": "",
     "behavior": "",
@@ -27,6 +29,8 @@
   },
   "Australian Magpie": {
     "scientificName": "Gymnorhina tibicen",
+    "inaturalistTaxonId": "",
+    "wikipediaTitle": "Australian magpie",
     "description": "",
     "habitat": "",
     "behavior": "",
@@ -37,6 +41,8 @@
   },
   "Black Prince": {
     "scientificName": "Psaltoda plaga",
+    "inaturalistTaxonId": "",
+    "wikipediaTitle": "Psaltoda plaga",
     "description": "",
     "habitat": "",
     "behavior": "",
