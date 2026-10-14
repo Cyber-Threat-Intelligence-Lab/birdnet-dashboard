@@ -270,7 +270,7 @@ export default function SpeciesListPage({
                       <div className="font-bold text-slate-900">{item.species}</div>
                       <div className="mt-1 text-xs italic text-slate-500">
                         {meta.scientificName ||
-                          "Scientific name will be resolved on the species page"}
+                          ""}
                       </div>
                     </td>
 
