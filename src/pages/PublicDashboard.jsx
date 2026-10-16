@@ -903,7 +903,7 @@ export default function PublicDashboard() {
 
         import.meta.env.VITE_BIRDNET_DATA_BASE ||
 
-        "https://raw.githubusercontent.com/Meghali-Nandi/Birdnet-Files/main/public/data"
+        "https://github.com/Cyber-Threat-Intelligence-Lab/Birdnet-Files/main/public/data"
 
 
 
