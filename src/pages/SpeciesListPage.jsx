@@ -8,6 +8,7 @@ import {
   ChevronUp,
   Search,
 } from "lucide-react"
+import { PORTAL_TITLE } from "../constants/branding"
 
 function metadataForSpecies(metadata, species) {
   const defaults = metadata?.__default || {}
@@ -177,7 +178,7 @@ export default function SpeciesListPage({
               </h1>
 
               <p className="mt-2 max-w-2xl text-sm text-slate-500">
-                Browse all species detected by the BowerBird nodes. Select any
+                Browse all species detected by the {PORTAL_TITLE}. Select any
                 column heading to sort the table, then select a species to view
                 occurrence statistics, recordings, and species information.
               </p>
@@ -268,10 +269,11 @@ export default function SpeciesListPage({
                   >
                     <td className="px-5 py-4 sm:px-6">
                       <div className="font-bold text-slate-900">{item.species}</div>
-                      <div className="mt-1 text-xs italic text-slate-500">
-                        {meta.scientificName ||
-                          ""}
-                      </div>
+                      {meta.scientificName && (
+                        <div className="mt-1 text-xs italic text-slate-500">
+                          {meta.scientificName}
+                        </div>
+                      )}
                     </td>
 
                     <td className="px-5 py-4">

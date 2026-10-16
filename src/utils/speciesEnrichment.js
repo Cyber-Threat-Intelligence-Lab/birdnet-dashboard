@@ -87,49 +87,27 @@ async function fetchJson(url) {
   return response.json()
 }
 
-function scoreTaxon(
-  taxon,
-  {
-    speciesName,
-    scientificName,
-    animalClass,
-  }
-) {
+function scoreTaxon(taxon, { speciesName, scientificName, animalClass }) {
   let score = 0
 
   const wantedScientific = normalize(scientificName)
   const wantedCommon = normalize(speciesName)
-
   const taxonScientific = normalize(taxon?.name)
-  const taxonCommon = normalize(
-    taxon?.preferred_common_name
-  )
+  const taxonCommon = normalize(taxon?.preferred_common_name)
 
-  if (
-    wantedScientific &&
-    taxonScientific === wantedScientific
-  ) {
+  if (wantedScientific && taxonScientific === wantedScientific) {
     score += 120
   }
 
-  if (
-    wantedCommon &&
-    taxonCommon === wantedCommon
-  ) {
+  if (wantedCommon && taxonCommon === wantedCommon) {
     score += 100
   }
 
-  if (
-    wantedScientific &&
-    taxonScientific.includes(wantedScientific)
-  ) {
+  if (wantedScientific && taxonScientific.includes(wantedScientific)) {
     score += 25
   }
 
-  if (
-    wantedCommon &&
-    taxonCommon.includes(wantedCommon)
-  ) {
+  if (wantedCommon && taxonCommon.includes(wantedCommon)) {
     score += 20
   }
 
@@ -137,13 +115,9 @@ function scoreTaxon(
     score += 10
   }
 
-  const expectedIconic =
-    CLASS_TO_INAT_ICONIC[animalClass]
+  const expectedIconic = CLASS_TO_INAT_ICONIC[animalClass]
 
-  if (
-    expectedIconic &&
-    taxon?.iconic_taxon_name === expectedIconic
-  ) {
+  if (expectedIconic && taxon?.iconic_taxon_name === expectedIconic) {
     score += 15
   }
 
@@ -158,33 +132,23 @@ async function fetchInaturalistTaxon({
 }) {
   if (inaturalistTaxonId) {
     const data = await fetchJson(
-      `https://api.inaturalist.org/v1/taxa/${encodeURIComponent(
-        inaturalistTaxonId
-      )}`
+      `https://api.inaturalist.org/v1/taxa/${encodeURIComponent(inaturalistTaxonId)}`
     )
 
     return data?.results?.[0] || null
   }
 
-  const query =
-    scientificName || speciesName
-
+  const query = scientificName || speciesName
   if (!query) return null
 
-  const url = new URL(
-    "https://api.inaturalist.org/v1/taxa"
-  )
-
+  const url = new URL("https://api.inaturalist.org/v1/taxa")
   url.searchParams.set("q", query)
   url.searchParams.set("rank", "species")
   url.searchParams.set("per_page", "10")
   url.searchParams.set("locale", "en")
 
   const data = await fetchJson(url.toString())
-
-  const results = Array.isArray(data?.results)
-    ? data.results
-    : []
+  const results = Array.isArray(data?.results) ? data.results : []
 
   if (!results.length) return null
 
@@ -201,11 +165,8 @@ async function fetchInaturalistTaxon({
 
   const best = ranked[0]
 
-  // Avoid silently attaching information
-  // to a weak common-name match.
-  if (best.score < 70) {
-    return null
-  }
+  // Avoid silently attaching information to a weak common-name match.
+  if (best.score < 70) return null
 
   return best.taxon
 }
@@ -215,18 +176,15 @@ function wikipediaTitleFromUrl(url) {
 
   try {
     const parsed = new URL(url)
-
     const marker = "/wiki/"
-    const index =
-      parsed.pathname.indexOf(marker)
+    const index = parsed.pathname.indexOf(marker)
 
     if (index === -1) return ""
 
-    return decodeURIComponent(
-      parsed.pathname.slice(
-        index + marker.length
-      )
-    ).replace(/_/g, " ")
+    return decodeURIComponent(parsed.pathname.slice(index + marker.length)).replace(
+      /_/g,
+      " "
+    )
   } catch {
     return ""
   }
@@ -235,42 +193,22 @@ function wikipediaTitleFromUrl(url) {
 async function fetchWikipediaSummary(title) {
   if (!title) return null
 
-  const url = new URL(
-    "https://en.wikipedia.org/w/api.php"
-  )
-
+  const url = new URL("https://en.wikipedia.org/w/api.php")
   url.searchParams.set("action", "query")
   url.searchParams.set("format", "json")
   url.searchParams.set("origin", "*")
   url.searchParams.set("redirects", "1")
-  url.searchParams.set(
-    "prop",
-    "extracts|info"
-  )
+  url.searchParams.set("prop", "extracts|info")
   url.searchParams.set("inprop", "url")
   url.searchParams.set("exintro", "1")
-  url.searchParams.set(
-    "explaintext",
-    "1"
-  )
+  url.searchParams.set("explaintext", "1")
   url.searchParams.set("titles", title)
 
-  const data = await fetchJson(
-    url.toString()
-  )
-
-  const pages = Object.values(
-    data?.query?.pages || {}
-  )
-
+  const data = await fetchJson(url.toString())
+  const pages = Object.values(data?.query?.pages || {})
   const page = pages[0]
 
-  if (
-    !page ||
-    page.missing !== undefined
-  ) {
-    return null
-  }
+  if (!page || page.missing !== undefined) return null
 
   return {
     title: page.title || title,
@@ -281,7 +219,6 @@ async function fetchWikipediaSummary(title) {
 
 function photoFromTaxon(taxon) {
   const photo = taxon?.default_photo
-
   if (!photo) return null
 
   return {
@@ -291,14 +228,8 @@ function photoFromTaxon(taxon) {
       photo.original_url ||
       photo.url ||
       "",
-
-    attribution:
-      photo.attribution || "",
-
-    license:
-      photo.license_code
-        ? photo.license_code.toUpperCase()
-        : "",
+    attribution: photo.attribution || "",
+    license: photo.license_code ? photo.license_code.toUpperCase() : "",
   }
 }
 
@@ -310,63 +241,40 @@ export async function fetchSpeciesEnrichment({
   animalClass = "",
 }) {
   const cacheIdentity =
-    inaturalistTaxonId ||
-    scientificName ||
-    `${speciesName}-${animalClass}`
+    inaturalistTaxonId || scientificName || `${speciesName}-${animalClass}`
 
-  const cacheKey =
-    `${CACHE_PREFIX}:${normalize(
-      cacheIdentity
-    )}`
-
+  const cacheKey = `${CACHE_PREFIX}:${normalize(cacheIdentity)}`
   const cached = readCache(cacheKey)
 
-  if (cached) {
-    return cached
-  }
+  if (cached) return cached
 
   let taxon = null
   let inatError = ""
 
   try {
-    taxon =
-      await fetchInaturalistTaxon({
-        speciesName,
-        scientificName,
-        inaturalistTaxonId,
-        animalClass,
-      })
+    taxon = await fetchInaturalistTaxon({
+      speciesName,
+      scientificName,
+      inaturalistTaxonId,
+      animalClass,
+    })
   } catch (error) {
-    inatError =
-      error?.message ||
-      "iNaturalist lookup failed"
+    inatError = error?.message || "iNaturalist lookup failed"
   }
 
-  const photo =
-    photoFromTaxon(taxon)
+  const photo = photoFromTaxon(taxon)
 
-  const resolvedScientificName =
-    taxon?.name ||
-    scientificName ||
-    ""
-
-  const resolvedCommonName =
-    taxon?.preferred_common_name ||
-    speciesName ||
-    ""
+  const resolvedScientificName = taxon?.name || scientificName || ""
+  const resolvedCommonName = taxon?.preferred_common_name || speciesName || ""
 
   const conservationRaw =
-    taxon?.conservation_status
-      ?.status_name ||
-    taxon?.conservation_status
-      ?.status ||
+    taxon?.conservation_status?.status_name ||
+    taxon?.conservation_status?.status ||
     ""
 
   const resolvedWikipediaTitle =
     wikipediaTitle ||
-    wikipediaTitleFromUrl(
-      taxon?.wikipedia_url
-    ) ||
+    wikipediaTitleFromUrl(taxon?.wikipedia_url) ||
     resolvedScientificName ||
     speciesName
 
@@ -374,74 +282,31 @@ export async function fetchSpeciesEnrichment({
   let wikipediaError = ""
 
   try {
-    wikipedia =
-      await fetchWikipediaSummary(
-        resolvedWikipediaTitle
-      )
+    wikipedia = await fetchWikipediaSummary(resolvedWikipediaTitle)
   } catch (error) {
-    wikipediaError =
-      error?.message ||
-      "Wikipedia lookup failed"
+    wikipediaError = error?.message || "Wikipedia lookup failed"
   }
 
   const value = {
-    commonName:
-      resolvedCommonName,
-
-    scientificName:
-      resolvedScientificName,
-
-    description:
-      wikipedia?.description || "",
-
-    imageUrl:
-      photo?.url || "",
-
-    imageAttribution:
-      photo?.attribution || "",
-
-    imageLicense:
-      photo?.license || "",
-
-    taxonGroup:
-      taxon?.iconic_taxon_name || "",
-
-    taxonRank:
-      taxon?.rank || "",
-
+    commonName: resolvedCommonName,
+    scientificName: resolvedScientificName,
+    description: wikipedia?.description || "",
+    imageUrl: photo?.url || "",
+    imageAttribution: photo?.attribution || "",
+    imageLicense: photo?.license || "",
+    taxonGroup: taxon?.iconic_taxon_name || "",
+    taxonRank: taxon?.rank || "",
     observationsCount:
-      Number.isFinite(
-        Number(
-          taxon?.observations_count
-        )
-      )
-        ? Number(
-            taxon.observations_count
-          )
+      Number.isFinite(Number(taxon?.observations_count))
+        ? Number(taxon.observations_count)
         : null,
-
-    conservationStatus:
-      humanizeStatus(
-        conservationRaw
-      ),
-
-    inaturalistUrl:
-      taxon?.id
-        ? `https://www.inaturalist.org/taxa/${taxon.id}`
-        : "",
-
-    wikipediaUrl:
-      wikipedia?.url ||
-      taxon?.wikipedia_url ||
-      "",
-
-    externalLookupMatched:
-      Boolean(taxon),
-
-    warnings: [
-      inatError,
-      wikipediaError,
-    ].filter(Boolean),
+    conservationStatus: humanizeStatus(conservationRaw),
+    inaturalistUrl: taxon?.id
+      ? `https://www.inaturalist.org/taxa/${taxon.id}`
+      : "",
+    wikipediaUrl: wikipedia?.url || taxon?.wikipedia_url || "",
+    externalLookupMatched: Boolean(taxon),
+    warnings: [inatError, wikipediaError].filter(Boolean),
   }
 
   writeCache(cacheKey, value)

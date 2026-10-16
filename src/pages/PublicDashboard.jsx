@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 
 import Papa from "papaparse"
 
@@ -8,6 +8,10 @@ import animationData from "../assets/logo.json"
 
 import SpeciesListPage from "./SpeciesListPage"
 import SpeciesDetailPage from "./SpeciesDetailPage"
+import LandingPage from "./LandingPage"
+import PublicFooter from "../components/PublicFooter"
+import PageLoadingSplash from "../components/PageLoadingSplash"
+import { PORTAL_TITLE } from "../constants/branding"
 
 
 
@@ -232,6 +236,9 @@ const CLASS_META = {
 
 
 const FREQUENCIES = ["Hourly", "6 Hours", "Daily", "Weekly"]
+
+const ADMIN_URL =
+  import.meta.env.VITE_ADMIN_URL || "http://localhost:5173/login"
 
 
 
@@ -763,6 +770,34 @@ function EmptyState({ message }) {
 
 
 
+function resolvePublicAsset(value) {
+  if (!value) return ""
+  if (/^https?:\/\//i.test(value)) return value
+  return `${import.meta.env.BASE_URL}${String(value).replace(/^\/+/, "")}`
+}
+
+function UNSWHeaderMark() {
+  const [failed, setFailed] = useState(false)
+  const configuredLogo = import.meta.env.VITE_UNSW_LOGO || "UNSW-logo.png"
+
+  if (failed) {
+    return (
+      <div className="text-sm font-extrabold tracking-tight text-white">
+        UNSW Sydney
+      </div>
+    )
+  }
+
+  return (
+    <img
+      src={resolvePublicAsset(configuredLogo)}
+      alt="UNSW Sydney"
+      className="h-9 w-auto object-contain"
+      onError={() => setFailed(true)}
+    />
+  )
+}
+
 function readPublicRoute() {
   const hash = window.location.hash || ""
 
@@ -782,6 +817,7 @@ function readPublicRoute() {
       return { view: "species-list", species: null }
     }
   }
+
 
   return { view: "dashboard", species: null }
 }
@@ -813,23 +849,53 @@ export default function PublicDashboard() {
   const [search, setSearch] = useState("")
   const [publicRoute, setPublicRoute] = useState(() => readPublicRoute())
   const [speciesMetadata, setSpeciesMetadata] = useState({})
+  const [showLanding, setShowLanding] = useState(true)
+  const [pageSplashVisible, setPageSplashVisible] = useState(true)
+  const pageSplashTimerRef = useRef(null)
+
+  const triggerPageSplash = useCallback((duration = 1200) => {
+    if (pageSplashTimerRef.current) {
+      window.clearTimeout(pageSplashTimerRef.current)
+    }
+
+    setPageSplashVisible(true)
+
+    pageSplashTimerRef.current = window.setTimeout(() => {
+      setPageSplashVisible(false)
+      pageSplashTimerRef.current = null
+    }, duration)
+  }, [])
+
+  useEffect(() => {
+    triggerPageSplash(1400)
+
+    return () => {
+      if (pageSplashTimerRef.current) {
+        window.clearTimeout(pageSplashTimerRef.current)
+      }
+    }
+  }, [triggerPageSplash])
+
+  useEffect(() => {
+    const handlePageShow = (event) => {
+      if (event.persisted) {
+        triggerPageSplash(1400)
+        setShowLanding(true)
+      }
+    }
+
+    window.addEventListener("pageshow", handlePageShow)
+
+    return () => {
+      window.removeEventListener("pageshow", handlePageShow)
+    }
+  }, [triggerPageSplash])
 
 
-
-  const ADMIN_URL =
-
-    import.meta.env.VITE_ADMIN_URL ||
-
-    "http://localhost:5173/login"
-
-
-
-  const handleAdminLogin = () => {
-    window.location.assign(ADMIN_URL)
-  }
 
   useEffect(() => {
     const handleHashChange = () => {
+      triggerPageSplash(1100)
       setPublicRoute(readPublicRoute())
     }
 
@@ -838,7 +904,7 @@ export default function PublicDashboard() {
     return () => {
       window.removeEventListener("hashchange", handleHashChange)
     }
-  }, [])
+  }, [triggerPageSplash])
 
   useEffect(() => {
     if (publicRoute.view !== "dashboard") {
@@ -903,7 +969,7 @@ export default function PublicDashboard() {
 
         import.meta.env.VITE_BIRDNET_DATA_BASE ||
 
-        "https://raw.githubusercontent.com/Cyber-Threat-Intelligence-Lab/Birdnet-Files/main/public/data"
+        "https://raw.githubusercontent.com/Meghali-Nandi/Birdnet-Files/main/public/data"
 
 
 
@@ -2223,92 +2289,80 @@ export default function PublicDashboard() {
     window.location.hash = `/species/${encodeURIComponent(species)}`
   }
 
+  const goToDescription = () => {
+    triggerPageSplash(1100)
+
+    if (window.location.hash) {
+      window.history.replaceState(null, "", window.location.pathname + window.location.search)
+      setPublicRoute({ view: "dashboard", species: null })
+    }
+
+    window.scrollTo({ top: 0, behavior: "auto" })
+    setShowLanding(true)
+  }
+
+  const enterDashboard = () => {
+    triggerPageSplash(1100)
+    setShowLanding(false)
+  }
+
+  const handleAdminLogin = () => {
+    window.location.assign(ADMIN_URL)
+  }
+
+
+  if (showLanding) {
+    return (
+      <>
+        <PageLoadingSplash visible={pageSplashVisible} />
+        <LandingPage onEnter={enterDashboard} />
+      </>
+    )
+  }
+
   return (
 
 
 
     <div className="min-h-screen bg-[#E9EDF1] text-slate-900">
-
-
+      <PageLoadingSplash visible={pageSplashVisible} />
 
       <header className="fixed inset-x-0 top-0 z-50 flex h-16 items-center justify-between bg-[#111827] px-4 text-white shadow-lg lg:px-5">
-
-
-
-        <div className="flex min-w-0 items-center gap-3">
-
-
-
+        <button
+          type="button"
+          onClick={goToDescription}
+          className="flex min-w-0 items-center gap-3 rounded-lg text-left transition hover:opacity-90"
+          aria-label={`Open ${PORTAL_TITLE} project description`}
+        >
           <img
-
-
-
             src={`${import.meta.env.BASE_URL}Logo.svg`}
-
-
-
-            alt="BowerBird"
-
-
-
+            alt={PORTAL_TITLE}
             className="h-10 w-10 rounded-lg bg-yellow-400 object-contain p-1"
-
-
-
           />
 
-
-
-
-
-
-
-          <div className="truncate text-lg font-extrabold tracking-tight lg:text-xl">
-
-
-
-            <span className="text-[#FFD400]">
-
-
-
-              BowerBird
-
-
-
-            </span>
-
-
-
+          <div className="max-w-[58vw] text-xs font-extrabold leading-tight tracking-tight sm:text-sm lg:text-base">
+            <span className="text-[#FFD400]">{PORTAL_TITLE}</span>
           </div>
+        </button>
 
+        <div className="flex items-center gap-3">
+          {/* <div className="hidden text-right md:block">
+            <div className="text-xs font-semibold text-slate-300">
+              UNSW Sydney research project
+            </div>
+            <div className="text-[11px] text-slate-500">BEES × CTI Lab, CSE</div>
+          </div> */}
+          <button
+            type="button"
+            onClick={handleAdminLogin}
+            className="flex items-center gap-2 rounded-xl bg-[#FFD400] px-3 py-2 text-sm font-bold text-slate-950 shadow-sm transition hover:bg-yellow-300 sm:px-4"
+          >
+            <LogIn size={17} />
+            <span className="hidden sm:inline">Admin</span>
+          </button>
 
-
+          <UNSWHeaderMark />
         </div>
-
-
-
-
-
-
-
-      <button
-
-        type="button"
-
-        onClick={handleAdminLogin}
-
-        className="flex items-center gap-2 rounded-xl bg-[#FFD400] px-4 py-2.5 text-sm font-bold text-slate-950 shadow-sm transition hover:bg-yellow-300"
-
-      >
-
-        <LogIn size={17} />
-
-        Admin
-
-      </button>
-
-
-
       </header>
 
 
@@ -2422,8 +2476,6 @@ export default function PublicDashboard() {
 
 
           </a>
-
-
 
         </nav>
 
@@ -3262,7 +3314,7 @@ export default function PublicDashboard() {
 
                 <h2 className="text-lg font-extrabold text-slate-900">
 
-                  Loading BowerBird data
+                  Loading biodiversity monitoring data
 
                 </h2>
 
@@ -5686,7 +5738,9 @@ export default function PublicDashboard() {
 
       </main>
 
-
+      <div className="lg:ml-56">
+        <PublicFooter />
+      </div>
 
     </div>
 

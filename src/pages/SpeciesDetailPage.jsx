@@ -25,6 +25,7 @@ import {
   YAxis,
 } from "recharts"
 import { fetchSpeciesEnrichment } from "../utils/speciesEnrichment"
+import { PORTAL_TITLE } from "../constants/branding"
 
 function metadataForSpecies(metadata, species) {
   const defaults = metadata?.__default || {}
@@ -380,7 +381,7 @@ export default function SpeciesDetailPage({
               {description ||
                 (externalLoading
                   ? "Looking up species information from public biodiversity sources..."
-                  : "No public species description was found. Detection statistics below are generated from BowerBird data.")}
+                  : `No public species description was found. Detection statistics below are generated from ${PORTAL_TITLE} data.`)}
             </p>
 
             {externalError && (
@@ -629,7 +630,7 @@ export default function SpeciesDetailPage({
         <div className="mb-5 flex items-center gap-2">
           <MapPin size={18} className="text-slate-500" />
           <h2 className="text-lg font-extrabold text-slate-900">
-            BowerBird detection summary
+            {PORTAL_TITLE} detection summary
           </h2>
         </div>
 

@@ -1,0 +1,34 @@
+{
+  "projectLead": {
+    "name": "Professor Will Cornwell",
+    "role": "Project Lead CI",
+    "affiliation": "School of Biological, Earth & Environmental Sciences (BEES), UNSW Sydney",
+    "profileUrl": "https://www.unsw.edu.au/staff/will-cornwell"
+  },
+  "chiefInvestigator": {
+    "name": "Associate Professor Arash Shaghaghi",
+    "role": "Chief Investigator",
+    "affiliation": "Cyber Threat Intelligence Lab, School of Computer Science and Engineering (CSE), UNSW Sydney",
+    "profileUrl": "https://www.unsw.edu.au/staff/arash-shaghaghi"
+  },
+  "developers": [
+    {
+      "name": "Meghali Nandi",
+      "role": "Researcher / Developer",
+      "affiliation": "UNSW Sydney",
+      "profileUrl": "https://meghali-nandi.github.io/"
+    },
+    {
+      "name": "Xinzhang Chen",
+      "role": "Researcher / Developer",
+      "affiliation": "UNSW Sydney",
+      "profileUrl": "https://www.linkedin.com/in/xinzhang-chen"
+    },
+    {
+      "name": "Nimesha Wickramasinghe",
+      "role": "Researcher / Developer",
+      "affiliation": "UNSW Sydney",
+      "profileUrl": "https://nime-sha256.info/"
+    }
+  ]
+}
